@@ -1,0 +1,45 @@
+package model
+
+import (
+	"github.com/Ibrahim-Muhammad13/books/pkg/config"
+	"github.com/jinzhu/gorm"
+)
+
+var db *gorm.DB
+
+type Book struct {
+	gorm.Model
+	Author      string `gorm:""json:"author"`
+	Name        string `gorm:""json:"name"`
+	Publication string `gorm:""json:"publication"`
+}
+
+func init() {
+	config.Connect()
+	db = config.GetDB()
+	db.AutoMigrate(&Book{})
+}
+
+func GetAllBooks() []Book {
+	var Books []Book
+	db.Find(&Books)
+	return Books
+}
+
+func (b *Book) CreateBook() *Book {
+	db.NewRecord(b)
+	db.Create(&b)
+	return b
+}
+
+func GetBookById(Id int64) (*Book, *gorm.DB) {
+	var getBook Book
+	db := db.Where("ID=?", Id).Find(&getBook)
+	return &getBook, db
+}
+
+func DeleteBook(ID int64) Book {
+	var Book Book
+	db.Where("ID=?", ID).Delete(Book)
+	return Book
+}
